@@ -200,3 +200,29 @@ func Test__multiply(t *testing.T) {
 		})
 	}
 }
+
+func Test_mixColumns(t *testing.T) {
+	type args struct {
+		state []uint32
+	}
+	tests := []struct {
+		name string
+		args args
+		want []uint32
+	}{
+		{
+			name: "T1",
+			args: args{
+				state: []uint32{0x01c6d497, 0x01c6d4ec, 0x01c6d4c3, 0x01c6d595},
+			},
+			want: []uint32{0x01c6d54c, 0x01c6d59f, 0x01c6d742, 0x01c6d6bc},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := mixColumns(tt.args.state); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("mixColumns() = %x, want %x", got, tt.want)
+			}
+		})
+	}
+}
