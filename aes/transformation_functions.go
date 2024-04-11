@@ -1,21 +1,5 @@
 package aes
 
-// helper function to perform multiplication in GF(256)
-func _multiply(num byte, multiplyBy byte) byte {
-	if multiplyBy&1 == 1 {
-		return num ^ _multiply(num, multiplyBy^1)
-	}
-	ans := num << 1
-	if num&0x80 == 0x80 {
-		ans ^= 0x1b
-	}
-	multiplyBy = multiplyBy >> 1
-	if multiplyBy > 1 {
-		return _multiply(ans, multiplyBy)
-	}
-	return ans
-}
-
 func subWord(word uint32) (result uint32) {
 	result = uint32(SBOX[word>>28][(word>>24)&15]) << 24
 	result |= uint32(SBOX[(word>>20)&15][(word>>16)&15]) << 16

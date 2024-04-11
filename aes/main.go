@@ -1,45 +1,47 @@
 package aes
 
-// helper function to transpose a matrix
-// takes a slice of uint32 and treats each uint32 as array of 4 bytes
-// this array of 4 byte arrays is transposed and then the result is
-// converted to matrix of uint32 again.
-//
-// Required because in AES a word is taken column wise not row wise
-func _transpose(matrix []uint32) []uint32 {
-	s := [4][4]uint32{}
-	ss := [4][4]uint32{}
-
-	for i := 0; i < 4; i++ {
-		s[i][0] = matrix[i] >> 24
-		s[i][1] = (matrix[i] >> 16) & 255
-		s[i][2] = (matrix[i] >> 8) & 255
-		s[i][3] = (matrix[i]) & 255
-	}
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			ss[i][j] = s[j][i]
-		}
-	}
-	for i := 0; i < 4; i++ {
-		matrix[i] = ss[i][0]<<24 | ss[i][1]<<16 | ss[i][2]<<8 | ss[i][3]
-	}
-	return matrix
+type AES struct {
+	__expanded []uint32
+	Nr         int
 }
 
-func Encrypt128(data []uint32, key []uint32) []uint32 {
-	N := 10
-	expanded := expandKey(key)
-	state := _transpose(data)
-	state = addRoundKey(state, _transpose(expanded[0:4]))
-	for i := 0; i < N-1; i++ {
-		state = subBytes(state)
-		state = shiftRows(state)
-		state = mixColumns(state)
-		state = addRoundKey(state, _transpose(expanded[(i+1)*4:(i+2)*4]))
+type _AES interface {
+	Init([]byte)
+	Encrypt([]byte) []byte
+}
+
+func (aes *AES) Init(key []byte) {
+	if len(key) == 8 {
+		aes.Nr = 10
+	} else if len(key) == 12 {
+		aes.Nr = 12
+	} else if len(key) == 16 {
+		aes.Nr = 16
+	} else {
+		panic("Invalid key length, should be either 128, 192 or 256 bits long")
 	}
-	state = subBytes(state)
-	state = shiftRows(state)
-	state = addRoundKey(state, _transpose(expanded[N*4:(N+1)*4]))
-	return _transpose(state)
+	aes.__expanded = expandKey(_byteToUintArr(key))
+}
+
+// Encrypt128 : Encrypts a single block of 128 bits passed as an array
+// of 4 32-bit integers
+func (aes *AES) Encrypt128(data []uint32) []uint32 {
+	_transpose(data)
+	addRoundKey(data, _transpose(aes.__expanded[0:4]))
+	for i := 0; i < aes.Nr-1; i++ {
+		subBytes(data)
+		shiftRows(data)
+		mixColumns(data)
+		addRoundKey(data, _transpose(aes.__expanded[(i+1)*4:(i+2)*4]))
+	}
+	subBytes(data)
+	shiftRows(data)
+	addRoundKey(data, _transpose(aes.__expanded[aes.Nr*4:(aes.Nr+1)*4]))
+	return _transpose(data)
+}
+
+// Encrypt : Encrypts a single block of 128 bits passes as an array
+// of 16 bytes
+func (aes *AES) Encrypt(data []byte) []byte {
+	return _uintArrToByte(aes.Encrypt128(_byteToUintArr(data)))
 }
