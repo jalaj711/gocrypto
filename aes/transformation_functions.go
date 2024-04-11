@@ -29,6 +29,13 @@ func shiftRows(state []uint32) []uint32 {
 	return state
 }
 
+func invShiftRows(state []uint32) []uint32 {
+	for i := 0; i < len(state); i++ {
+		state[i] = (state[i] >> (i * 8)) | (state[i] << (32 - i*8))
+	}
+	return state
+}
+
 func addRoundKey(state, roundKey []uint32) []uint32 {
 	for i := 0; i < len(state); i++ {
 		state[i] = state[i] ^ roundKey[i]
