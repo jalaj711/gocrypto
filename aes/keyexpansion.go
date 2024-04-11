@@ -22,9 +22,9 @@ func expandKey(key []uint32) []uint32 {
 
 	for i := N; i < 4*R; i++ {
 		if i%N == 0 {
-			expandedWords[i] = expandedWords[i-N] ^ subWord((expandedWords[i-1]<<8)|(expandedWords[i-1]>>24)) ^ RCON[i/N-1]
+			expandedWords[i] = expandedWords[i-N] ^ subWord((expandedWords[i-1]<<8)|(expandedWords[i-1]>>24), &SBOX) ^ RCON[i/N-1]
 		} else if N == 8 && i%N == 4 {
-			expandedWords[i] = expandedWords[i-N] ^ subWord(expandedWords[i-1])
+			expandedWords[i] = expandedWords[i-N] ^ subWord(expandedWords[i-1], &SBOX)
 		} else {
 			expandedWords[i] = expandedWords[i-N] ^ expandedWords[i-1]
 		}
