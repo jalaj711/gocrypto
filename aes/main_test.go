@@ -25,7 +25,9 @@ func TestEncrypt128(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Encrypt128(tt.args.data, tt.args.key); !reflect.DeepEqual(got, tt.want) {
+			aes := new(AES)
+			aes.Init(_uintArrToByte(tt.args.key))
+			if got := aes.Encrypt128(tt.args.data); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Encrypt128() = %x, want %x", got, tt.want)
 			}
 		})

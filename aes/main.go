@@ -11,11 +11,11 @@ type _AES interface {
 }
 
 func (aes *AES) Init(key []byte) {
-	if len(key) == 8 {
+	if len(key) == 16 {
 		aes.Nr = 10
-	} else if len(key) == 12 {
+	} else if len(key) == 24 {
 		aes.Nr = 12
-	} else if len(key) == 16 {
+	} else if len(key) == 32 {
 		aes.Nr = 16
 	} else {
 		panic("Invalid key length, should be either 128, 192 or 256 bits long")
