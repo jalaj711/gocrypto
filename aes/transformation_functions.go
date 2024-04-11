@@ -64,3 +64,25 @@ func mixColumns(state []uint32) []uint32 {
 	}
 	return state
 }
+
+func invMixColumns(state []uint32) []uint32 {
+	s := [4][4]byte{}
+	ss := [4][4]byte{}
+
+	for i := 0; i < 4; i++ {
+		s[i][0] = byte(state[i] >> 24)
+		s[i][1] = byte(state[i] >> 16)
+		s[i][2] = byte(state[i] >> 8)
+		s[i][3] = byte(state[i])
+	}
+	for i := 0; i < 4; i++ {
+		ss[0][i] = _multiply(s[0][i], 0x0e) ^ _multiply(s[1][i], 0x0b) ^ _multiply(s[2][i], 0x0d) ^ _multiply(s[3][i], 0x09)
+		ss[1][i] = _multiply(s[1][i], 0x0e) ^ _multiply(s[2][i], 0x0b) ^ _multiply(s[3][i], 0x0d) ^ _multiply(s[0][i], 0x09)
+		ss[2][i] = _multiply(s[2][i], 0x0e) ^ _multiply(s[3][i], 0x0b) ^ _multiply(s[0][i], 0x0d) ^ _multiply(s[1][i], 0x09)
+		ss[3][i] = _multiply(s[3][i], 0x0e) ^ _multiply(s[0][i], 0x0b) ^ _multiply(s[1][i], 0x0d) ^ _multiply(s[2][i], 0x09)
+	}
+	for i := 0; i < 4; i++ {
+		state[i] = uint32(ss[i][0])<<24 | uint32(ss[i][1])<<16 | uint32(ss[i][2])<<8 | uint32(ss[i][3])
+	}
+	return state
+}
