@@ -8,6 +8,7 @@ type AES struct {
 type _AES interface {
 	Init([]byte)
 	Encrypt([]byte) []byte
+	Decrypt([]byte) []byte
 }
 
 func (aes *AES) Init(key []byte) {
@@ -16,7 +17,7 @@ func (aes *AES) Init(key []byte) {
 	} else if len(key) == 24 {
 		aes.Nr = 12
 	} else if len(key) == 32 {
-		aes.Nr = 16
+		aes.Nr = 14
 	} else {
 		panic("Invalid key length, should be either 128, 192 or 256 bits long")
 	}
@@ -61,4 +62,10 @@ func (aes *AES) Decrypt128(data []uint32) []uint32 {
 	invSubBytes(data)
 	addRoundKey(data, _transpose(aes.__expanded[0:4]))
 	return _transpose(data)
+}
+
+// Decrypt : Decrypts a single block of 128 bits passes as an array
+// of 16 bytes
+func (aes *AES) Decrypt(data []byte) []byte {
+	return _uintArrToByte(aes.Decrypt128(_byteToUintArr(data)))
 }
