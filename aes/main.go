@@ -5,12 +5,11 @@ type AES struct {
 	Nr         int
 }
 
-type _AES interface {
-	Init([]byte)
-	Encrypt([]byte) []byte
-	Decrypt([]byte) []byte
+func (aes *AES) GetBlockSize() int {
+	return 16
 }
 
+// Init : Initialise the AES object with the supplied key
 func (aes *AES) Init(key []byte) {
 	if len(key) == 16 {
 		aes.Nr = 10
@@ -28,16 +27,19 @@ func (aes *AES) Init(key []byte) {
 // of 4 32-bit integers
 func (aes *AES) Encrypt128(data []uint32) []uint32 {
 	_transpose(data)
-	addRoundKey(data, _transpose(aes.__expanded[0:4]))
+	// TODO remove thiw
+	expandedCopy := make([]uint32, len(aes.__expanded))
+	copy(expandedCopy, aes.__expanded)
+	addRoundKey(data, _transpose(expandedCopy[0:4]))
 	for i := 0; i < aes.Nr-1; i++ {
 		subBytes(data)
 		shiftRows(data)
 		mixColumns(data)
-		addRoundKey(data, _transpose(aes.__expanded[(i+1)*4:(i+2)*4]))
+		addRoundKey(data, _transpose(expandedCopy[(i+1)*4:(i+2)*4]))
 	}
 	subBytes(data)
 	shiftRows(data)
-	addRoundKey(data, _transpose(aes.__expanded[aes.Nr*4:(aes.Nr+1)*4]))
+	addRoundKey(data, _transpose(expandedCopy[aes.Nr*4:(aes.Nr+1)*4]))
 	return _transpose(data)
 }
 
