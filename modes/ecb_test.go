@@ -21,7 +21,7 @@ func TestECB_Encrypt(t *testing.T) {
 		want   []byte
 	}{
 		{
-			name:   "enc-test1",
+			name:   "ecb-enc-1",
 			fields: fields{cipher: &aes.AES{}, padding: &PKCS7{}},
 			args: args{data: []byte{
 				0x00, 0x7e, 0x65, 0x77,
@@ -54,7 +54,62 @@ func TestECB_Encrypt(t *testing.T) {
 				0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00})
 			if got := ecb.Encrypt(tt.args.data); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Encrypt() = %v, want %v", got, tt.want)
+				t.Errorf("Encrypt() = %x, want %x", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestECB_Decrypt(t *testing.T) {
+	type fields struct {
+		cipher  BlockCipher
+		padding Padding
+	}
+	type args struct {
+		data []byte
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   []byte
+	}{
+		{
+			name:   "ecb-dec-1",
+			fields: fields{cipher: &aes.AES{}, padding: &PKCS7{}},
+			args: args{data: []byte{
+				0x81, 0xa8, 0x22, 0x74,
+				0x33, 0x41, 0x98, 0xad,
+				0xab, 0x11, 0x11, 0x49,
+				0xf7, 0xe9, 0x63, 0x91,
+				0x93, 0xb2, 0x7a, 0x81,
+				0x9d, 0x01, 0x21, 0xeb,
+				0x47, 0xcc, 0xc2, 0xff,
+				0xb1, 0x48, 0x1d, 0xc1}},
+			want: []byte{
+				0x00, 0x7e, 0x65, 0x77,
+				0xe6, 0x57, 0x7a, 0xbc,
+				0x62, 0xcd, 0x28, 0x73,
+				0x65, 0xf1, 0x99, 0xf7,
+				0x6a, 0xc5, 0x3b, 0xd5,
+				0x34, 0x00, 0x00, 0x00,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ecb := &ECB{
+				cipher:  tt.fields.cipher,
+				padding: tt.fields.padding,
+			}
+
+			ecb.Init([]byte{
+				0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00})
+			if got := ecb.Decrypt(tt.args.data); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Decrypt() = %x, want %x", got, tt.want)
 			}
 		})
 	}

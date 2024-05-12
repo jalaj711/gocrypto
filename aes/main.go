@@ -27,7 +27,7 @@ func (aes *AES) Init(key []byte) {
 // of 4 32-bit integers
 func (aes *AES) Encrypt128(data []uint32) []uint32 {
 	_transpose(data)
-	// TODO remove thiw
+	// TODO remove this
 	expandedCopy := make([]uint32, len(aes.__expanded))
 	copy(expandedCopy, aes.__expanded)
 	addRoundKey(data, _transpose(expandedCopy[0:4]))
@@ -53,16 +53,19 @@ func (aes *AES) Encrypt(data []byte) []byte {
 // of 4 32-bit integers
 func (aes *AES) Decrypt128(data []uint32) []uint32 {
 	_transpose(data)
-	addRoundKey(data, _transpose(aes.__expanded[aes.Nr*4:(aes.Nr+1)*4]))
+	// TODO remove this
+	expandedCopy := make([]uint32, len(aes.__expanded))
+	copy(expandedCopy, aes.__expanded)
+	addRoundKey(data, _transpose(expandedCopy[aes.Nr*4:(aes.Nr+1)*4]))
 	for i := aes.Nr - 1; i > 0; i-- {
 		invShiftRows(data)
 		invSubBytes(data)
-		addRoundKey(data, _transpose(aes.__expanded[(i)*4:(i+1)*4]))
+		addRoundKey(data, _transpose(expandedCopy[(i)*4:(i+1)*4]))
 		invMixColumns(data)
 	}
 	invShiftRows(data)
 	invSubBytes(data)
-	addRoundKey(data, _transpose(aes.__expanded[0:4]))
+	addRoundKey(data, _transpose(expandedCopy[0:4]))
 	return _transpose(data)
 }
 
