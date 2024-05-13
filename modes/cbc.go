@@ -1,7 +1,5 @@
 package modes
 
-import "fmt"
-
 type CBC struct {
 	cipher  BlockCipher
 	padding Padding
@@ -21,7 +19,7 @@ func (cbc *CBC) Init(key []byte, iv []byte) {
 func (cbc *CBC) Encrypt(data []byte) []byte {
 	blockSize := cbc.cipher.GetBlockSize()
 	plaintext := cbc.padding.Pad(data, blockSize)
-	fmt.Printf("%x", plaintext)
+	encrypted := make([]byte, 0, len(plaintext))
 	iv := make([]byte, blockSize)
 	copy(iv, cbc.iv)
 	for i := 0; i < len(plaintext); i += blockSize {
@@ -29,6 +27,7 @@ func (cbc *CBC) Encrypt(data []byte) []byte {
 			iv[j] = iv[j] ^ plaintext[i+j]
 		}
 		iv = cbc.cipher.Encrypt(iv)
+		encrypted = append(encrypted, iv...)
 	}
-	return iv
+	return encrypted
 }
