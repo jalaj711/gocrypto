@@ -31,3 +31,23 @@ func (cbc *CBC) Encrypt(data []byte) []byte {
 	}
 	return encrypted
 }
+
+func (cbc *CBC) Decrypt(data []byte) []byte {
+	blockSize := cbc.cipher.GetBlockSize()
+	if len(data)%blockSize != 0 {
+		panic("Invalid ciphertext")
+	}
+	plaintext := make([]byte, 0, len(data))
+	iv := make([]byte, blockSize)
+	var temp []byte
+	copy(iv, cbc.iv)
+	for i := 0; i < len(data); i += blockSize {
+		temp = cbc.cipher.Decrypt(data[i : i+blockSize])
+		for j := 0; j < blockSize; j++ {
+			temp[j] = iv[j] ^ temp[j]
+		}
+		plaintext = append(plaintext, temp...)
+		iv = data[i : i+blockSize]
+	}
+	return cbc.padding.UnPad(plaintext, blockSize)
+}

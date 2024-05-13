@@ -1,8 +1,8 @@
 package modes
 
 type Padding interface {
-	Pad([]byte, int) []byte
-	UnPad([]byte, int) []byte
+	Pad(data []byte, blockSize int) []byte
+	UnPad(data []byte, blockSize int) []byte
 }
 
 type PKCS7 struct{}
