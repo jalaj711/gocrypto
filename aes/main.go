@@ -43,7 +43,7 @@ func (aes *AES) Encrypt128(data []uint32) []uint32 {
 	return _transpose(data)
 }
 
-// Encrypt : Encrypts a single block of 128 bits passes as an array
+// Encrypt : Encrypts a single block of 128 bits passed as an array
 // of 16 bytes
 func (aes *AES) Encrypt(data []byte) []byte {
 	return _uintArrToByte(aes.Encrypt128(_byteToUintArr(data)))
@@ -69,7 +69,7 @@ func (aes *AES) Decrypt128(data []uint32) []uint32 {
 	return _transpose(data)
 }
 
-// Decrypt : Decrypts a single block of 128 bits passes as an array
+// Decrypt : Decrypts a single block of 128 bits passed as an array
 // of 16 bytes
 func (aes *AES) Decrypt(data []byte) []byte {
 	return _uintArrToByte(aes.Decrypt128(_byteToUintArr(data)))

@@ -1,11 +1,19 @@
 package des
 
-import "errors"
+type DES struct {
+	__roundkeys [16][6]byte
+}
+
+func (des *DES) GetBlockSize() int {
+	return 8
+}
+
+func (des *DES) Init(key []byte) {
+	des.__roundkeys = getRoundKeys([8]byte(key[:8]))
+}
 
 // Encrypt64 takes 64-bit data block and encrypts it using a 64-bit key by applying DES
-func Encrypt64(data [8]byte, key [8]byte) (encrypted [8]byte) {
-	round_keys := getRoundKeys(key)
-
+func (des *DES) Encrypt64(data [8]byte) (encrypted [8]byte) {
 	// IP
 	data = initial_permutation(data)
 
@@ -17,7 +25,7 @@ func Encrypt64(data [8]byte, key [8]byte) (encrypted [8]byte) {
 		// L(i) = R(i-1)
 		// R(i) = L(i-1) XOR F(R(i-1), ROUNDKEY)
 		L1 = R0
-		out = round_function(R0, round_keys[i])
+		out = round_function(R0, des.__roundkeys[i])
 		for j := 0; j < 4; j++ {
 			R1[j] = L0[j] ^ out[j]
 		}
@@ -34,8 +42,7 @@ func Encrypt64(data [8]byte, key [8]byte) (encrypted [8]byte) {
 }
 
 // Decrypt64 takes 64-bit data block and decrypts it using a 64-bit key by applying DES
-func Decrypt64(data [8]byte, key [8]byte) (decrypted [8]byte) {
-	round_keys := getRoundKeys(key)
+func (des *DES) Decrypt64(data [8]byte) (decrypted [8]byte) {
 
 	data = initial_permutation(data)
 
@@ -46,7 +53,7 @@ func Decrypt64(data [8]byte, key [8]byte) (decrypted [8]byte) {
 	// decryption is same as encryption except round keys are applied in reverse order
 	for i := 15; i >= 0; i-- {
 		L1 = R0
-		out = round_function(R0, round_keys[i])
+		out = round_function(R0, des.__roundkeys[i])
 		for j := 0; j < 4; j++ {
 			R1[j] = L0[j] ^ out[j]
 		}
@@ -62,31 +69,24 @@ func Decrypt64(data [8]byte, key [8]byte) (decrypted [8]byte) {
 	return decrypted
 }
 
-// Encrypt encrypts a given byte array of any number of bytes using the 64-bit key supplied
-// the input message is first padded to make it a multiple of 64-bits
-// the encryption happens using electronic codebook mode
-func Encrypt(data []byte, key [8]byte) (encrypted []byte) {
-	data = addPadding(data)
-	encrypted = make([]byte, 0, len(data))
-	var block [8]byte
-	for i := 0; i < len(data); i += 8 {
-		block = Encrypt64(([8]byte)(data[i:i+8]), key)
-		encrypted = append(encrypted, block[:]...)
+// Encrypt encrypts a given byte array of 8 bytes
+func (des *DES) Encrypt(data []byte) (encrypted []byte) {
+	if len(data) != 8 {
+		panic("plaintext must be of 64-bits")
 	}
+	encrypted = make([]byte, 0, len(data))
+	block := des.Encrypt64(([8]byte)(data))
+	encrypted = append(encrypted, block[:]...)
 	return encrypted
 }
 
-// Decrypt decrypts a given byte array that was encrypted using DES 64-bit electronic codebook mode encryption using CMS padding
-// the padding is removed before returning the plaintext
-func Decrypt(data []byte, key [8]byte) (decrypted []byte, err error) {
-	if len(data)%8 != 0 {
-		return decrypted, errors.New("ciphertext must be a multiple of 64-bits")
+// Decrypt decrypts a given byte array that was encrypted using DES 64-bit encryption
+func (des *DES) Decrypt(data []byte) (decrypted []byte) {
+	if len(data) != 8 {
+		panic("ciphertext must be of 64-bits")
 	}
-	decrypted = make([]byte, 0, len(data))
-	var block [8]byte
-	for i := 0; i < len(data); i += 8 {
-		block = Decrypt64(([8]byte)(data[i:i+8]), key)
-		decrypted = append(decrypted, block[:]...)
-	}
-	return removePadding(decrypted)
+	decrypted = make([]byte, 0)
+	temp := des.Decrypt64(([8]byte)(data))
+	decrypted = append(decrypted, temp[:]...)
+	return decrypted
 }
