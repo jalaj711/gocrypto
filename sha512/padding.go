@@ -6,7 +6,7 @@ func Pad(input []byte) []byte {
 	l := uint64(len(input))
 	toPad := l % 128
 	if toPad >= 112 {
-		toPad = 128 - toPad
+		toPad = 112 + 128 - toPad
 	} else {
 		toPad = 112 - toPad
 	}
