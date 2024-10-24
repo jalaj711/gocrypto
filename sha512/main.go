@@ -10,3 +10,17 @@ type registers struct {
 	g uint64
 	h uint64
 }
+
+func Hash(input []byte) []uint64 {
+	input = Pad(input)
+
+	reg := getInitRegisters()
+
+	for i := 0; i < len(input); i += 128 {
+		sha512block(input[i:i+128], &reg)
+	}
+
+	result := []uint64{reg.a, reg.b, reg.c, reg.d, reg.e, reg.f, reg.g, reg.h}
+
+	return result
+}
