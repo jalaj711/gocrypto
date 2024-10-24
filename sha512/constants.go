@@ -1,6 +1,6 @@
 package sha512
 
-func get_init_registers() registers {
+func getInitRegisters() registers {
 	return registers{
 		a: 0x6a09e667f3bcc908,
 		b: 0xbb67ae8584caa73b,

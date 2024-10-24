@@ -2,7 +2,7 @@ package sha512
 
 // circular right shift the number x by n bits
 func rotr(x uint64, n int) uint64 {
-	return x>>n | ((x & ((1 << n) - 1)) << (64 - n))
+	return x>>n | (x << (64 - n))
 }
 
 // right shift the number x by n bits
