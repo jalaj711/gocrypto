@@ -1,6 +1,9 @@
 package sha512
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func Test_rotr(t *testing.T) {
 	type args struct {
@@ -41,6 +44,32 @@ func Test_rotr(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := rotr(tt.args.x, tt.args.n); got != tt.want {
 				t.Errorf("rotr() = %x, want %x", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_uint64ToByte(t *testing.T) {
+	type args struct {
+		inp []uint64
+	}
+	tests := []struct {
+		name string
+		args args
+		want []byte
+	}{
+		{
+			name: "uint-to-byte test",
+			args: args{
+				inp: []uint64{0x123456789abcdef0},
+			},
+			want: []byte{0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := uint64ToByte(tt.args.inp); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("uint64ToByte() = %x, want %x", got, tt.want)
 			}
 		})
 	}

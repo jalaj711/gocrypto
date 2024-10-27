@@ -11,7 +11,7 @@ type registers struct {
 	h uint64
 }
 
-func Hash(input []byte) []uint64 {
+func Hash(input []byte) []byte {
 	input = Pad(input)
 
 	reg := getInitRegisters()
@@ -22,5 +22,5 @@ func Hash(input []byte) []uint64 {
 
 	result := []uint64{reg.a, reg.b, reg.c, reg.d, reg.e, reg.f, reg.g, reg.h}
 
-	return result
+	return uint64ToByte(result)
 }

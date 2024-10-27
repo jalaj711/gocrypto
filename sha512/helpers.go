@@ -37,3 +37,19 @@ func ch(e, f, g uint64) uint64 {
 func maj(a, b, c uint64) uint64 {
 	return (a & b) ^ (a & c) ^ (b & c)
 }
+
+// convert uint64 array to byte array
+func uint64ToByte(inp []uint64) []byte {
+	n := len(inp)
+	out := make([]byte, n*8)
+
+	for i := 0; i < n; i++ {
+		v := inp[i]
+		for j := 0; j < 8; j++ {
+			out[i*8+7-j] = byte(v & 0xff)
+			v = v >> 8
+		}
+	}
+
+	return out
+}
